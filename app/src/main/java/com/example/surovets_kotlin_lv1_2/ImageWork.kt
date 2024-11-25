@@ -10,9 +10,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -30,7 +30,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -41,9 +40,6 @@ import coil.request.ImageRequest
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.GET
 
 
 @Composable
@@ -76,26 +72,31 @@ fun GifsScreen(gifsRetrofit: GifsRetrofit) {
             }
 
             isFailed -> {
-                Column {
-                    Box(modifier = Modifier.clickable(onClick = {
-                        ShowGifs(BASE_URL,
-                            coroutineScope,
-                            gifsRetrofit,
-                            handler,
-                            { gifsList = it },
-                            { isLoading = it },
-                            { isFailed = it })
-                    })) {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = R.string.app_name.toString(),
-                        )
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column() {
+                        Box(modifier = Modifier.clickable(onClick = {
+                            ShowGifs(BASE_URL,
+                                coroutineScope,
+                                gifsRetrofit,
+                                handler,
+                                { gifsList = it },
+                                { isLoading = it },
+                                { isFailed = it })
+                        })) {
+                            Icon(
+                                imageVector = Icons.Default.Refresh,
+                                contentDescription = null,
+                                modifier = Modifier.align(Alignment.Center),
+                            )
+                        }
                     }
                 }
             }
 
             else -> {
-
                 if (isLandscape) {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(3),
@@ -103,10 +104,6 @@ fun GifsScreen(gifsRetrofit: GifsRetrofit) {
                         contentPadding = PaddingValues(10.dp)
                     )
                     {
-
-                    }
-                } else {
-                    LazyColumn(modifier = Modifier.fillMaxWidth()) {
                         items(gifsList ?: emptyList()) { gif ->
                             val imageRequest = ImageRequest.Builder(LocalContext.current)
                                 .data(gif.images.original.url)
@@ -120,9 +117,30 @@ fun GifsScreen(gifsRetrofit: GifsRetrofit) {
                                 modifier = Modifier
                                     .padding(5.dp)
                                     .clip(RoundedCornerShape(20.dp)),
-                                alignment = Alignment.Center,
                                 contentScale = ContentScale.Crop
                             )
+                        }
+                    }
+                } else {
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                        items(gifsList ?: emptyList()) { gif ->
+                            val imageRequest = ImageRequest.Builder(LocalContext.current)
+                                .data(gif.images.original.url)
+                                .decoderFactory(GifDecoder.Factory())
+                                .build()
+
+                            Box( modifier = Modifier.fillMaxWidth(),
+                                contentAlignment = Alignment.Center) {
+                                AsyncImage(
+                                    model = imageRequest,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .padding(5.dp)
+                                        .clip(RoundedCornerShape(20.dp)),
+                                    alignment = Alignment.Center,
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
                         }
                     }
                 }
@@ -142,7 +160,7 @@ fun GifsScreen(gifsRetrofit: GifsRetrofit) {
                 { isFailed = it }
             )
         }, modifier = Modifier.align(Alignment.Bottom)) {
-            Text(text = "See CUTE ANIMAL gifs!")
+            Text(text = R.string.load_button.toString())
         }
     }
 }
