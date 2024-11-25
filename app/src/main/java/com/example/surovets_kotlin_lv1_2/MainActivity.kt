@@ -3,45 +3,16 @@ package com.example.surovets_kotlin_lv1_2
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.surovets_kotlin_lv1_2.ui.theme.Surovets_Kotlin_lv1_2Theme
 
 class MainActivity : ComponentActivity() {
+    val BASE_URL =
+        "https://api.giphy.com/"
+
+    private val gifsRetrofit by lazy { GifsRetrofit(BASE_URL) }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
-            Surovets_Kotlin_lv1_2Theme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
+            GifsScreen(gifsRetrofit)
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    Surovets_Kotlin_lv1_2Theme {
-        Greeting("Android")
     }
 }
